@@ -34,7 +34,5 @@ jobs:
               with:
                context: ./frontend
                file: ./frontend/Dockerfile
-               platforms: linux/arm64
                push: true
                tags: ${{ vars.SANDBOX_ACR_LOGIN_SERVER }}.azurecr.io/llm-graph-builder-frontend:${{github.run_number}}
-  
