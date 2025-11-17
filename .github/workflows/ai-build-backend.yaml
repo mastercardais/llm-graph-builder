@@ -33,7 +33,7 @@ jobs:
               uses: docker/build-push-action@v5
               with:
                context: ./backend
-               file: ./Dockerfile
+               file: ./backend/Dockerfile
                platforms: linux/arm64
                push: true
                tags: ${{ vars.SANDBOX_ACR_LOGIN_SERVER }}.azurecr.io/llm-graph-builder-backend:${{github.run_number}}
