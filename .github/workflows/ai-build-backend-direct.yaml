@@ -1,0 +1,43 @@
+name: ai-demo-build-backend
+
+on:
+    push:
+        branches:
+              - main
+    workflow_dispatch:
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        permissions:
+          id-token: write
+          contents: read
+
+        steps:
+            - uses: actions/checkout@v3
+    
+            - name: Print Info and Architecture
+              run: |
+                    echo "Working with Hash ${GITHUB_SHA}"
+                    echo "Architecture: $(uname -m)"
+                    docker version
+                    
+            - name: Azure Container Registry Login
+              uses: azure/docker-login@v1
+              with:
+               login-server: ${{ vars.SANDBOX_ACR_LOGIN_SERVER }}.azurecr.io
+               username: ${{ secrets.SANDBOX_CLIENT_ID }}
+               password: ${{ secrets.SANDBOX_CLIENT_SECRET }}
+               
+            - name: Build Docker Image (Native AMD64)
+              run: |
+                cd ./backend
+                docker build --platform linux/amd64 -t ${{ vars.SANDBOX_ACR_LOGIN_SERVER }}.azurecr.io/llm-graph-builder-backend:${{github.run_number}} .
+                
+            - name: Verify Image Architecture
+              run: |
+                docker image inspect ${{ vars.SANDBOX_ACR_LOGIN_SERVER }}.azurecr.io/llm-graph-builder-backend:${{github.run_number}} | jq '.[0].Architecture'
+                
+            - name: Push Image
+              run: |
+                docker push ${{ vars.SANDBOX_ACR_LOGIN_SERVER }}.azurecr.io/llm-graph-builder-backend:${{github.run_number}}
+
