@@ -18,37 +18,35 @@ jobs:
             - name: Print Info and Architecture
               run: |
                     echo "Working with Hash ${GITHUB_SHA}"
-                    echo "Architecture: $(uname -m)"
+                    echo "Runner architecture: $(uname -m)"
                     docker version
-                    docker info | grep -i "builder\|buildx"
-                    
-            - name: Disable BuildKit and Buildx
-              run: |
-                    # Force use of legacy builder
-                    echo "DOCKER_BUILDKIT=0" >> $GITHUB_ENV
-                    docker buildx uninstall || true
-                    docker buildx rm default || true
-                    
+
+            - name: Set up QEMU
+              uses: docker/setup-qemu-action@v3
+              with:
+                platforms: arm64
+
+            - name: Set up Docker Buildx
+              uses: docker/setup-buildx-action@v3
+
             - name: Azure Container Registry Login
               uses: azure/docker-login@v1
               with:
                login-server: ${{ vars.SANDBOX_ACR_LOGIN_SERVER }}.azurecr.io
                username: ${{ secrets.SANDBOX_CLIENT_ID }}
                password: ${{ secrets.SANDBOX_CLIENT_SECRET }}
-               
-            - name: Build Docker Image (Legacy Builder)
-              env:
-                DOCKER_BUILDKIT: 0
+
+            - name: Build and Push ARM64 Image
               run: |
                 cd ./backend
-                # Use legacy builder without buildx/buildkit
-                docker build -t ${{ vars.SANDBOX_ACR_LOGIN_SERVER }}.azurecr.io/llm-graph-builder-backend:${{github.run_number}} .
-                
+                docker buildx build \
+                  --platform linux/arm64 \
+                  --push \
+                  -t ${{ vars.SANDBOX_ACR_LOGIN_SERVER }}.azurecr.io/llm-graph-builder-backend:${{github.run_number}} \
+                  .
+
             - name: Verify Image Architecture
               run: |
-                docker image inspect ${{ vars.SANDBOX_ACR_LOGIN_SERVER }}.azurecr.io/llm-graph-builder-backend:${{github.run_number}} | jq '.[0].Architecture'
-                
-            - name: Push Image
-              run: |
-                docker push ${{ vars.SANDBOX_ACR_LOGIN_SERVER }}.azurecr.io/llm-graph-builder-backend:${{github.run_number}}
+                docker buildx imagetools inspect ${{ vars.SANDBOX_ACR_LOGIN_SERVER }}.azurecr.io/llm-graph-builder-backend:${{github.run_number}} \
+                  | grep -n "arm64"
 
