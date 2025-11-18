@@ -13,8 +13,8 @@ RUN apt-get update && \
        tesseract-ocr && \
    apt-get clean && \
    rm -rf /var/lib/apt/lists/*
-# Set LD_LIBRARY_PATH
-ENV LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH
+# Set LD_LIBRARY_PATH for both amd64 and arm64 images
+ENV LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu:/usr/lib/aarch64-linux-gnu
 # Copy requirements file and install Python dependencies
 COPY requirements.txt constraints.txt /code/
 # --no-cache-dir --upgrade 
