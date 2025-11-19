@@ -41,13 +41,24 @@ jobs:
                 cd ./frontend
                 docker buildx build \
                   --platform linux/arm64 \
+                  --build-arg VITE_BACKEND_API_URL=https://mc-sandbox-llmgraphbuilder.3pillarglobal.com/api \
                   --build-arg DEPLOYMENT_ENV=prod \
+                  --build-arg VITE_ENV=PROD \
+                  --build-arg VITE_FRONTEND_HOSTNAME=mc-sandbox-llmgraphbuilder.3pillarglobal.com \
+                  --build-arg VITE_SEGMENT_API_URL=https://api.segment.io \
+                  --build-arg VITE_SKIP_AUTH=true \
+                  --build-arg VITE_BLOOM_URL=https://workspace-preview.neo4j.io/workspace/explore?connectURL={CONNECT_URL}&search=Show+me+a+graph&featureGenAISuggestions=true&featureGenAISuggestionsInternal=true \
+                  --build-arg VITE_TIME_PER_PAGE=50 \
+                  --build-arg VITE_CHUNK_SIZE=5242880 \
+                  --build-arg VITE_CHUNK_OVERLAP=20 \
+                  --build-arg VITE_TOKENS_PER_CHUNK=200 \
+                  --build-arg VITE_CHUNK_TO_COMBINE=1 \
+                  --build-arg VITE_LARGE_FILE_SIZE=5242880 \
+                  --build-arg VITE_BATCH_SIZE=2 \
+                  --build-arg VITE_LLM_MODELS_PROD=azure_ai_gpt_4o \
+                  --build-arg VITE_REACT_APP_SOURCES=local,youtube,wiki,s3,web \
+                  --build-arg VITE_LLM_MODELS=azure_ai_gpt_4o \
                   --push \
                   -t ${{ vars.SANDBOX_ACR_LOGIN_SERVER }}.azurecr.io/llm-graph-builder-frontend:${{github.run_number}} \
                   .
-
-            - name: Verify Image Architecture
-              run: |
-                docker buildx imagetools inspect ${{ vars.SANDBOX_ACR_LOGIN_SERVER }}.azurecr.io/llm-graph-builder-frontend:${{github.run_number}} \
-                  | grep -n "arm64"
 

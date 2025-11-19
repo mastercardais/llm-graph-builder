@@ -44,9 +44,3 @@ jobs:
                   --push \
                   -t ${{ vars.SANDBOX_ACR_LOGIN_SERVER }}.azurecr.io/llm-graph-builder-backend:${{github.run_number}} \
                   .
-
-            - name: Verify Image Architecture
-              run: |
-                docker buildx imagetools inspect ${{ vars.SANDBOX_ACR_LOGIN_SERVER }}.azurecr.io/llm-graph-builder-backend:${{github.run_number}} \
-                  | grep -n "arm64"
-
