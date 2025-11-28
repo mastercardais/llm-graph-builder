@@ -47,10 +47,10 @@ jobs:
                 sbom: false
                 tags: ${{ vars.SANDBOX_ACR_LOGIN_SERVER }}.azurecr.io/llm-graph-builder-frontend:${{github.run_number}}
                 build-args: |
-                  VITE_BACKEND_API_URL=https://mc-sandbox-llmgraphbuilder.3pillarglobal.com/api
+                  VITE_BACKEND_API_URL=https://mc-sandbox-llmgraphbuilder.azure.mcaisandbox.com/api
                   DEPLOYMENT_ENV=prod
                   VITE_ENV=PROD
-                  VITE_FRONTEND_HOSTNAME=mc-sandbox-llmgraphbuilder.3pillarglobal.com
+                  VITE_FRONTEND_HOSTNAME=mc-sandbox-llmgraphbuilder.azure.mcaisandbox.com
                   VITE_SEGMENT_API_URL=https://api.segment.io
                   VITE_SKIP_AUTH=true
                   VITE_BLOOM_URL=https://workspace-preview.neo4j.io/workspace/explore?connectURL={CONNECT_URL}&search=Show+me+a+graph&featureGenAISuggestions=true&featureGenAISuggestionsInternal=true
