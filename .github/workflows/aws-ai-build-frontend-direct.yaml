@@ -1,0 +1,55 @@
+name: aws-ai-demo-build-frontend
+
+on:
+    push:
+        branches:
+              - main
+    workflow_dispatch:
+jobs:
+    aws-front-build:
+        runs-on: ubuntu-latest
+        permissions:
+          id-token: write
+          contents: read
+
+        steps:
+            - uses: actions/checkout@v3
+    
+            - name: Print Info and Architecture
+              run: |
+                    echo "Working with Hash ${GITHUB_SHA}"
+                    echo "Runner architecture: $(uname -m)"
+                    docker version
+            - name: Configure AWS credentials
+              uses: aws-actions/configure-aws-credentials@v4
+              with:
+                role-to-assume: ${{ secrets.AWS_GITHUB_ROLE }}
+                aws-region: 'us-west-2'
+            - name: Login to Amazon ECR
+              id: login-ecr
+              uses: aws-actions/amazon-ecr-login@v2
+            - name: Docker Build and Publish
+              uses: docker/build-push-action@v5
+              with:
+               context: ./frontend
+               file: ./frontend/Dockerfile
+               push: true
+               tags: ${{ secrets.ECR_REPO }}/llm-graph-builder-frontend:${{github.run_number}}
+               build-args: |
+                  VITE_BACKEND_API_URL=https://mc-sandbox-llmgraphbuilder.aws.mcaisandbox.com/api
+                  DEPLOYMENT_ENV=prod
+                  VITE_ENV=PROD
+                  VITE_FRONTEND_HOSTNAME=mc-sandbox-llmgraphbuilder.aws.mcaisandbox.com
+                  VITE_SEGMENT_API_URL=https://api.segment.io
+                  VITE_SKIP_AUTH=true
+                  VITE_BLOOM_URL=https://workspace-preview.neo4j.io/workspace/explore?connectURL={CONNECT_URL}&search=Show+me+a+graph&featureGenAISuggestions=true&featureGenAISuggestionsInternal=true
+                  VITE_TIME_PER_PAGE=50
+                  VITE_CHUNK_SIZE=5242880
+                  VITE_CHUNK_OVERLAP=20
+                  VITE_TOKENS_PER_CHUNK=200
+                  VITE_CHUNK_TO_COMBINE=1
+                  VITE_LARGE_FILE_SIZE=5242880
+                  VITE_BATCH_SIZE=2
+                  VITE_LLM_MODELS_PROD=azure_ai_gpt_4o
+                  VITE_REACT_APP_SOURCES=local,youtube,wiki,s3,web
+                  VITE_LLM_MODELS=azure_ai_gpt_4o
