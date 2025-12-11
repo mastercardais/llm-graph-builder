@@ -3,7 +3,7 @@ name: aws-ai-demo-build-frontend
 on:
     push:
         branches:
-              - main
+              - aws
     workflow_dispatch:
 jobs:
     aws-front-build:
