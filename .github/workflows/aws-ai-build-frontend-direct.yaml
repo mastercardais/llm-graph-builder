@@ -50,6 +50,6 @@ jobs:
                   VITE_CHUNK_TO_COMBINE=1
                   VITE_LARGE_FILE_SIZE=5242880
                   VITE_BATCH_SIZE=2
-                  VITE_LLM_MODELS_PROD=azure_ai_gpt_4o
+                  VITE_LLM_MODELS_PROD=azure_ai_gpt_4o,bedrock_claude_3_5_sonnet
                   VITE_REACT_APP_SOURCES=local,youtube,wiki,s3,web
-                  VITE_LLM_MODELS=azure_ai_gpt_4o
+                  VITE_LLM_MODELS=azure_ai_gpt_4o,bedrock_claude_3_5_sonnet
