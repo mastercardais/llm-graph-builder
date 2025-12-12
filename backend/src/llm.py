@@ -88,16 +88,36 @@ def get_llm(model: str):
             llm = ChatGroq(api_key=api_key, model_name=model_name, temperature=0)
 
         elif "bedrock" in model:
+            from botocore.config import Config
+            
             model_name, aws_access_key, aws_secret_key, region_name = env_value.split(",")
+            
+            # Configure retry strategy with exponential backoff for rate limiting
+            config = Config(
+                retries={
+                    'max_attempts': 10,  # Increased from default 4
+                    'mode': 'adaptive'   # Adaptive mode adjusts retry behavior based on throttling
+                },
+                connect_timeout=60,      # Increased connection timeout
+                read_timeout=300,        # Increased read timeout to 5 minutes
+                max_pool_connections=25  # Limit concurrent connections
+            )
+            
             bedrock_client = boto3.client(
                 service_name="bedrock-runtime",
                 region_name=region_name,
                 aws_access_key_id=aws_access_key,
                 aws_secret_access_key=aws_secret_key,
+                config=config
             )
 
             llm = ChatBedrock(
-                client=bedrock_client,region_name=region_name, model_id=model_name, model_kwargs=dict(temperature=0)
+                client=bedrock_client,
+                region_name=region_name, 
+                model_id=model_name, 
+                model_kwargs=dict(temperature=0),
+                # Add request timeout for ChatBedrock wrapper
+                request_timeout=300
             )
 
         elif "ollama" in model:
